@@ -1,0 +1,39 @@
+---
+name: Build image
+
+"on":
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    paths:
+      - .github/workflows/build-image.yml
+      - scripts/*
+  pull_request:
+    paths:
+      - .github/workflows/build-image.yml
+      - scripts/*
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v1
+      - run: bash build.sh
+      - uses: SamKirkland/FTP-Deploy-Action@4.0.0
+        with:
+          local-dir: ./output/
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          security: strict
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          exclude: .git*
+            - .git*/**
+            -  **/.git*/**
+            - node_modules/**
+            - node_modules/**/*
+            - ironic-ubuntu-focal*.d
+            - ironic-ubuntu-focal*/**/*
+        if: github.ref == 'refs/heads/master'

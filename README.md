@@ -1,0 +1,1 @@
+# openstack-ironic-ubuntu-image
